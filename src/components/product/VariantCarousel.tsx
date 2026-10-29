@@ -76,6 +76,9 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
   // Server-rendered starting layout, so the row is in place before GSAP loads.
   // Frozen at the first render: after that GSAP owns these styles.
   const [initialPos] = useState(active);
+  // The other models wait until the first centre photo has loaded, so on a
+  // slow connection it isn't sharing bandwidth with five more photos.
+  const [restReady, setRestReady] = useState(false);
   const [playing, setPlaying] = useState(!reducedMotion);
   const [hovering, setHovering] = useState(false);
 
@@ -224,6 +227,21 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
     [n, loop, reducedMotion, render],
   );
 
+  // The centre photo can finish loading before React attaches onLoad (fast
+  // connections, cache), so also check after mount, with a time limit.
+  useEffect(() => {
+    if (restReady) return;
+    const frame = requestAnimationFrame(() => {
+      const first = stageRef.current?.querySelector<HTMLImageElement>('img[fetchpriority="high"]');
+      if (first?.complete) setRestReady(true);
+    });
+    const timer = window.setTimeout(() => setRestReady(true), 3000);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [restReady]);
+
   // Follow `active` when it changes from outside (swatches, arrows, URL, autoplay).
   useEffect(() => {
     const here = nearestIndex(pos.current.value, n, loop);
@@ -317,18 +335,22 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
               style={initialSlideStyle(slideDistance(i, initialPos, n, loop))}
             >
               <span className="contact-shadow" aria-hidden="true" />
-              <Image
-                src={img.src}
-                alt={isActive ? img.alt : ""}
-                fill
-                sizes="(min-width: 1024px) 18vw, (min-width: 640px) 26vw, 60vw"
-                className="object-contain object-bottom"
-                // The first centre photo is the page's main image: fetch it first.
-                preload={i === initialPos}
-                fetchPriority={i === initialPos ? "high" : "low"}
-                loading={i === initialPos ? "eager" : "lazy"}
-                draggable={false}
-              />
+              {(i === initialPos || restReady) && (
+                <Image
+                  src={img.src}
+                  alt={isActive ? img.alt : ""}
+                  fill
+                  // Slide width is 40% of its height (88% of a ~56-60svh stage).
+                  sizes="(min-width: 768px) 250px, 22vh"
+                  className="object-contain object-bottom"
+                  // The first centre photo is the page's main image: fetch it first.
+                  preload={i === initialPos}
+                  fetchPriority={i === initialPos ? "high" : "low"}
+                  loading={i === initialPos ? "eager" : "lazy"}
+                  onLoad={i === initialPos ? () => setRestReady(true) : undefined}
+                  draggable={false}
+                />
+              )}
               {isActive && settled && product.hotspots.length > 0 && (
                 <div className="absolute inset-0">
                   {product.hotspots.map((h) => (

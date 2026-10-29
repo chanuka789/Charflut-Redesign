@@ -4,10 +4,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   images: {
-    // Model photos are pre-sized WebP files (scripts/process-models.py), so the
-    // server never resizes images. That keeps sharp, and its CPU and memory
-    // spikes, out of the running container.
-    unoptimized: true,
+    // Model photos are pre-sized WebP files (scripts/process-models.py) and the
+    // custom loader only picks between them, so the server never resizes
+    // images. That keeps sharp, and its CPU and memory spikes, out of the
+    // running container.
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
+    deviceSizes: [640, 1080],
+    imageSizes: [128, 384],
   },
   compress: true,
   async headers() {

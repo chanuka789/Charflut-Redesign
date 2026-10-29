@@ -89,7 +89,11 @@ test.describe("product page", () => {
     await page.goto(PDP);
     const img = page.getByRole("img", { name: /Loop Hoodie in Concrete/ });
     await expect(img).toBeVisible();
-    expect(await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBe(600);
+    // The browser picks the 360 px or 600 px file depending on the slot and screen
+    // (naturalWidth is density-adjusted, so only check that it loaded).
+    await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBeGreaterThan(0);
+    // The other colours load once the centre photo is in.
+    await expect(page.getByTestId("carousel-stage").locator("img")).toHaveCount(6);
   });
 
   test("no horizontal scroll and no serious accessibility issues", async ({ page }) => {

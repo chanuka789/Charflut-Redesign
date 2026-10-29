@@ -5,7 +5,8 @@ For every product colour it recolours the garment the product page sells
 (the top for hoodies and tees, the jeans for trousers), trims the person
 to a 2:5 frame with the feet on the bottom edge, and writes a small WebP:
 
-    public/models/<product>/<variant>-<gender>.webp
+    public/models/<product>/<variant>-<gender>.webp      (600 x 1500)
+    public/models/<product>/<variant>-<gender>-sm.webp   (360 x 900, phones)
 
 Run it after adding photos or colours:  python3 scripts/process-models.py
 Source photos live in assets/models-src/<gender>.png (transparent PNG,
@@ -26,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "assets" / "models-src"
 OUT = ROOT / "public" / "models"
 OUT_W, OUT_H = 600, 1500  # 2:5, matches the slide box
+SMALL = (360, 900)
 TOP_MARGIN, BOTTOM_MARGIN = 0.02, 0.008
 
 
@@ -123,9 +125,13 @@ def main():
                 mask = bottom if garment == "cargo" else top
                 rgb = recolour(rgba[..., :3].astype(np.float32), mask, hex_colour)
                 out = np.dstack([rgb.astype(np.uint8), rgba[..., 3]])
+                framed = frame(out)
                 path = OUT / slug / f"{variant_id}-{gender}.webp"
-                frame(out).save(path, "WEBP", quality=72, method=6)
-                manifest[f"{slug}/{variant_id}-{gender}"] = path.stat().st_size
+                framed.save(path, "WEBP", quality=72, method=6)
+                # Phone-sized copy, picked by src/lib/image-loader.ts for small slots.
+                small = OUT / slug / f"{variant_id}-{gender}-sm.webp"
+                framed.resize(SMALL, Image.LANCZOS).save(small, "WEBP", quality=70, method=6)
+                manifest[f"{slug}/{variant_id}-{gender}"] = path.stat().st_size + small.stat().st_size
     total = sum(manifest.values())
     print(json.dumps({"files": len(manifest), "totalKB": round(total / 1024)}, indent=2))
 

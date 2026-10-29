@@ -55,7 +55,8 @@ describe("model photos", () => {
       for (const v of p.variants)
         for (const g of p.genders) {
           const src = modelImage(p, v, g).src;
-          if (!existsSync(`public${src}`)) missing.push(src);
+          for (const file of [src, src.replace(/\.webp$/, "-sm.webp")])
+            if (!existsSync(`public${file}`)) missing.push(file);
         }
     expect(missing).toEqual([]);
   });

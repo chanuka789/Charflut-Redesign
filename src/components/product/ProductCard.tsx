@@ -15,7 +15,7 @@ export function ProductCard({ product }: { product: Product }) {
             src={modelImage(product, first, product.genders[0]!).src}
             alt=""
             fill
-            sizes="(min-width: 768px) 15vw, 30vw"
+            sizes="(min-width: 768px) 12vw, 20vw"
             className="object-contain object-bottom"
           />
         </div>
