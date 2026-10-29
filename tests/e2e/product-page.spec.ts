@@ -27,6 +27,7 @@ test.describe("product page", () => {
 
   test("dragging or swiping the stage changes colour", async ({ page }, info) => {
     await page.goto(PDP);
+    await expect(page.getByTestId("carousel-stage")).toHaveAttribute("data-ready", "true");
     const box = (await page.getByTestId("carousel-stage").boundingBox())!;
     const y = box.y + box.height * 0.75;
     const startX = box.x + box.width * 0.75;

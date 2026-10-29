@@ -164,6 +164,8 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         },
       });
       draggable.current = d ?? null;
+      // Lets tests (and CSS, if needed) know dragging is wired up.
+      stage.dataset.ready = "true";
 
       const tweened = pos.current;
       return () => {
