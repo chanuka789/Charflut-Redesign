@@ -70,6 +70,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
   const reported = useRef(active);
   const autoplayStep = useRef(false);
   const draggable = useRef<Draggable | null>(null);
+  const startedAt = useRef(0);
 
   const [settled, setSettled] = useState(true);
   // Server-rendered starting layout, so the row is in place before GSAP loads.
@@ -113,6 +114,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
       const stage = stageRef.current;
       if (!stage) return;
 
+      startedAt.current = performance.now();
       const measure = () => {
         layout.current = layoutFor(stage.clientWidth);
         render();
@@ -227,11 +229,20 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
     const here = nearestIndex(pos.current.value, n, loop);
     if (active === here && !dragging.current) return;
     if (dragging.current) return;
+    // A colour that arrives while the page is starting up (a ?color= link)
+    // jumps into place instead of sliding across the row.
+    if (performance.now() - startedAt.current < 600) {
+      reported.current = active;
+      gsap.killTweensOf(pos.current);
+      pos.current.value = active;
+      render();
+      return;
+    }
     if (!autoplayStep.current && active !== reported.current) setPlaying(false);
     autoplayStep.current = false;
     reported.current = active;
     travelTo(active);
-  }, [active, n, loop, travelTo]);
+  }, [active, n, loop, travelTo, render]);
 
   // Re-render when the model set changes (men / women), the motion stays put.
   useEffect(() => {
@@ -291,8 +302,6 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         {variants.map((v, i) => {
           const img = modelImage(product, v, gender);
           const isActive = i === active;
-          // The centre model and its direct neighbours load first; the rest when idle.
-          const near = Math.abs(slideDistance(i, initialPos, n, loop)) <= 1;
           return (
             <div
               key={v.id}
@@ -314,8 +323,10 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
                 fill
                 sizes="(min-width: 1024px) 18vw, (min-width: 640px) 26vw, 60vw"
                 className="object-contain object-bottom"
-                priority={i === initialPos}
-                loading={i === initialPos ? undefined : near ? "eager" : "lazy"}
+                // The first centre photo is the page's main image: fetch it first.
+                preload={i === initialPos}
+                fetchPriority={i === initialPos ? "high" : "low"}
+                loading={i === initialPos ? "eager" : "lazy"}
                 draggable={false}
               />
               {isActive && settled && product.hotspots.length > 0 && (

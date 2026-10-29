@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { Heart, RotateCcw, Truck } from "lucide-react";
-import type { ModelGender, Product } from "@/lib/schema";
+import { modelGenders, type ModelGender, type Product } from "@/lib/schema";
 import { LOW_STOCK, sizeStock, toLine, variantCompareAt, variantPrice } from "@/lib/product-utils";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useMounted } from "@/lib/use-mounted";
@@ -23,13 +23,45 @@ import { StickyBuyBar } from "./StickyBuyBar";
 interface ProductViewProps {
   product: Product;
   pairings: Product[];
-  initialVariant: number;
-  initialGender: ModelGender;
 }
 
-export function ProductView({ product, pairings, initialVariant, initialGender }: ProductViewProps) {
-  const [active, setActive] = useState(initialVariant);
-  const [gender, setGender] = useState<ModelGender>(initialGender);
+const noSubscribe = () => () => {};
+// The query string as it was when this page opened. Frozen on the first read
+// so our own replaceState() calls are never mistaken for an incoming link.
+let openedWith: string | null = null;
+const readSearch = () => (openedWith ??= window.location.search);
+const serverSearch = () => "";
+
+function fromSearch(product: Product, search: string) {
+  const q = new URLSearchParams(search);
+  const variant = product.variants.findIndex((v) => v.id === q.get("color"));
+  const model = q.get("model") as ModelGender | null;
+  const gender = model && modelGenders.includes(model) && product.genders.includes(model) ? model : null;
+  return { variant: variant >= 0 ? variant : null, gender };
+}
+
+export function ProductView({ product, pairings }: ProductViewProps) {
+  const [active, setActive] = useState(0);
+  const [gender, setGender] = useState<ModelGender>(product.genders[0]!);
+
+  // The page is a static file built with the default colour. After hydration
+  // React re-renders with the real ?color= / ?model=, and we adopt them once,
+  // in place, so the server-rendered photo stays on screen (no remount).
+  const search = useSyncExternalStore(noSubscribe, readSearch, serverSearch);
+  const [adopted, setAdopted] = useState(false);
+  useEffect(
+    () => () => {
+      // The next product page opened in this tab reads its own URL.
+      openedWith = null;
+    },
+    [],
+  );
+  if (!adopted && search) {
+    setAdopted(true);
+    const q = fromSearch(product, search);
+    if (q.variant !== null) setActive(q.variant);
+    if (q.gender) setGender(q.gender);
+  }
   const [size, setSize] = useState<string | null>(null);
   const [sizeError, setSizeError] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -49,8 +81,11 @@ export function ProductView({ product, pairings, initialVariant, initialGender }
   const compareAt = variantCompareAt(product, variant);
   const stock = size ? sizeStock(variant, size) : null;
 
-  // Keep the URL in step so a shared link opens this exact colour.
+  // Keep the URL in step so a shared link opens this exact colour. Skip the
+  // first run: it would overwrite an incoming ?color= before it is adopted.
+  const urlWrites = useRef(0);
   useEffect(() => {
+    if (urlWrites.current++ === 0) return;
     const url = new URL(window.location.href);
     url.searchParams.set("color", variant.id);
     url.searchParams.set("model", gender);

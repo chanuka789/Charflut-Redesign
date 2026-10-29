@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getProduct, products } from "@/data/catalog";
 import type { Product } from "@/lib/schema";
 import { inStock, variantPrice } from "@/lib/product-utils";
-import { ProductViewFromUrl } from "@/components/product/ProductViewFromUrl";
+import { ProductView } from "@/components/product/ProductView";
 import { ProductCard } from "@/components/product/ProductCard";
 
 interface PageProps {
@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: PageProps) {
         // Product data is our own static content; escape "<" so it can't close the tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(product)).replace(/</g, "\\u003c") }}
       />
-      <ProductViewFromUrl
+      <ProductView
         key={product.slug}
         product={product}
         pairings={pairings}
