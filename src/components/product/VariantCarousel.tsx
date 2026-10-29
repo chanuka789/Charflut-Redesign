@@ -32,6 +32,21 @@ function layoutFor(width: number): Layout {
   return { spacing: width * 0.205, radius: 2, maxBlur: 6 };
 }
 
+/**
+ * CSS twin of the GSAP layout for the first paint. Spacing comes from the
+ * --slide-spacing custom property, set per stage width with container queries.
+ */
+function initialSlideStyle(d: number): React.CSSProperties {
+  const depth = slideDepth(d, { spacing: 1, radius: 2, maxBlur: 6 });
+  return {
+    transform: `translateX(-50%) translateX(calc(var(--slide-spacing) * ${depth.x.toFixed(3)})) translateY(${depth.y}px) scale(${depth.scale.toFixed(3)})`,
+    opacity: depth.opacity,
+    zIndex: depth.zIndex,
+    filter: depth.blur > 0.2 ? `blur(${depth.blur.toFixed(2)}px)` : undefined,
+    visibility: depth.visible ? undefined : "hidden",
+  };
+}
+
 interface VariantCarouselProps {
   product: Product;
   gender: ModelGender;
@@ -57,6 +72,9 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
   const draggable = useRef<Draggable | null>(null);
 
   const [settled, setSettled] = useState(true);
+  // Server-rendered starting layout, so the row is in place before GSAP loads.
+  // Frozen at the first render: after that GSAP owns these styles.
+  const [initialPos] = useState(active);
   const [playing, setPlaying] = useState(!reducedMotion);
   const [hovering, setHovering] = useState(false);
 
@@ -267,7 +285,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         tabIndex={0}
         onKeyDown={onKeyDown}
         aria-label={`Showing ${current.name}. Use the left and right arrow keys to change colour.`}
-        className="studio-floor relative h-[clamp(25rem,60svh,46rem)] w-full cursor-grab touch-pan-y overflow-hidden select-none active:cursor-grabbing focus-visible:outline-offset-[-2px] md:h-[clamp(28rem,56svh,44rem)]"
+        className="carousel-stage studio-floor relative h-[clamp(25rem,60svh,46rem)] w-full cursor-grab touch-pan-y overflow-hidden select-none active:cursor-grabbing focus-visible:outline-offset-[-2px] md:h-[clamp(28rem,56svh,44rem)]"
         data-testid="carousel-stage"
       >
         {variants.map((v, i) => {
@@ -284,7 +302,8 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
               aria-roledescription="slide"
               aria-label={`${v.name}, ${i + 1} of ${n}`}
               aria-hidden={!isActive}
-              className="absolute bottom-[4%] left-1/2 aspect-[2/5] h-[88%] origin-bottom will-change-transform"
+              className="carousel-slide absolute bottom-[4%] left-1/2 aspect-[2/5] h-[88%] origin-bottom will-change-transform"
+              style={initialSlideStyle(slideDistance(i, initialPos, n, loop))}
             >
               <div className="absolute inset-0">
                 {img ? (
