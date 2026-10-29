@@ -367,7 +367,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         </p>
       </div>
 
-      <div className="flex items-center gap-3 px-4 pt-4 pb-1 sm:gap-4 sm:px-6 lg:px-10">
+      <div className="flex items-center gap-3 px-4 pt-5 pb-1 sm:gap-4 sm:px-6 lg:px-10">
         <button
           type="button"
           onClick={() => step(-1)}
@@ -378,7 +378,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
           <ArrowLeft className="size-4" strokeWidth={1.5} />
         </button>
 
-        <ol className="flex min-w-0 flex-1 items-end gap-1.5" aria-label="Colours">
+        <ol className="flex min-w-0 flex-1 items-end gap-2 sm:gap-3" aria-label="Colours">
           {variants.map((v, i) => (
             <li key={v.id} className="min-w-0 flex-1">
               <button
@@ -390,17 +390,18 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
                   onActiveChange(i);
                   travelTo(i);
                 }}
-                className="group block w-full py-2 text-left"
-                aria-label={`${v.name}${i === active ? ", current" : ""}`}
+                className="group block w-full py-1 text-left"
+                aria-label={`${String(i + 1).padStart(2, "0")} ${v.name}${i === active ? ", current" : ""}`}
                 aria-current={i === active ? "true" : undefined}
               >
                 <span
                   className={cn(
-                    "mb-2 hidden truncate text-2xs transition-colors md:block",
+                    "tabular mb-1.5 block text-[0.6875rem] tracking-wide transition-colors",
                     i === active ? "text-ink" : "text-ink-faint group-hover:text-ink-soft",
                   )}
+                  aria-hidden="true"
                 >
-                  {v.name}
+                  {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="relative block h-[2px] overflow-hidden rounded-pill bg-line">
                   <span
@@ -418,7 +419,11 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
           ))}
         </ol>
 
-        <span className="tabular shrink-0 text-xs text-ink-soft md:hidden" aria-hidden="true">
+        <span className="hidden max-w-32 truncate text-xs text-ink-soft sm:block md:max-w-44" aria-hidden="true">
+          {current.name}
+        </span>
+
+        <span className="tabular shrink-0 text-xs text-ink-soft sm:hidden" aria-hidden="true">
           {active + 1}/{n}
         </span>
 

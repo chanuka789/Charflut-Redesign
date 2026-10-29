@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import type { Product, Variant } from "@/lib/schema";
 import { bundleTotals, formatPrice } from "@/lib/price";
 import { inStock, toLine, variantPrice } from "@/lib/product-utils";
@@ -65,37 +65,37 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
   };
 
   return (
-    <section aria-labelledby="ctl-heading" className="rounded-md border border-line bg-paper-raised/60">
-      <div className="flex items-baseline justify-between gap-4 px-5 pt-5">
+    <section aria-labelledby="ctl-heading">
+      <div className="flex items-baseline justify-between gap-4">
         <h2 id="ctl-heading" className="text-sm font-medium">
-          Complete the look
+          In this look
         </h2>
-        <p className="text-xs text-ink-soft">{pieces.length + 1} pieces</p>
+        <p className="text-2xs tracking-wide text-ink-faint uppercase">{pieces.length + 1} pieces</p>
       </div>
 
-      <ul className="mt-3 divide-y divide-line px-5">
-        <li className="flex items-center gap-4 py-3">
+      <ul className="mt-2 divide-y divide-line">
+        <li className="flex items-center gap-3 py-3">
           <Thumb product={product} variant={variant} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm">{product.name}</p>
-            <p className="text-xs text-ink-soft">
+            <p className="truncate text-xs text-ink-soft">
               {variant.name}
               {size ? `, size ${size}` : ""}
             </p>
           </div>
-          <p className="tabular text-sm">{formatPrice(variantPrice(product, variant))}</p>
+          <p className="tabular shrink-0 text-sm">{formatPrice(variantPrice(product, variant))}</p>
         </li>
         {pieces.map((piece) => {
           const selectId = `${errorId}-${piece.product.slug}`;
           return (
-            <li key={piece.product.slug} className="flex items-center gap-4 py-3">
+            <li key={piece.product.slug} className="flex items-center gap-3 py-3">
               <Thumb product={piece.product} variant={piece.variant} />
               <div className="min-w-0 flex-1">
                 <Link href={`/products/${piece.product.slug}`} className="block truncate text-sm hover:underline">
                   {piece.product.name}
                 </Link>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs text-ink-soft">{piece.variant.name}</span>
+                  <span className="truncate text-xs text-ink-soft">{piece.variant.name}</span>
                   <label htmlFor={selectId} className="sr-only">
                     Size for {piece.product.name}
                   </label>
@@ -106,7 +106,7 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
                       setSizes((s) => ({ ...s, [piece.product.slug]: e.target.value }));
                       setError(null);
                     }}
-                    className="h-8 rounded-sm border border-line-strong bg-paper-raised px-2 text-xs"
+                    className="h-8 shrink-0 rounded-sm border border-line-strong bg-transparent px-1.5 text-xs"
                   >
                     <option value="">Size</option>
                     {piece.variant.sizes.map((s) => (
@@ -118,12 +118,12 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
                   </select>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex shrink-0 flex-col items-end gap-0.5">
                 <p className="tabular text-sm">{formatPrice(variantPrice(piece.product, piece.variant))}</p>
                 <button
                   type="button"
                   onClick={() => addOne(piece)}
-                  className="-mr-2 grid size-9 place-items-center rounded-pill text-ink-soft transition-colors hover:bg-paper-sunk hover:text-ink"
+                  className="grid size-8 place-items-center rounded-pill text-ink-soft transition-colors hover:bg-paper-sunk hover:text-ink"
                   aria-label={`Add ${piece.product.name} to bag`}
                 >
                   <Plus className="size-4" strokeWidth={1.5} />
@@ -134,11 +134,11 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
         })}
       </ul>
 
-      <div className="border-t border-line px-5 pt-4 pb-5">
-        <div className="flex items-baseline justify-between gap-4">
-          <p className="text-sm">
-            Bundle all {pieces.length + 1}
-            <span className="ml-2 text-xs text-signal">Save {Math.round(discount * 100)}%</span>
+      <div className="mt-2 border-t border-line pt-4">
+        <p className="text-sm font-medium">Complete the look</p>
+        <div className="mt-1 flex items-baseline justify-between gap-4">
+          <p className="text-xs text-ink-soft">
+            Bundle all {pieces.length + 1} and save {Math.round(discount * 100)}%
           </p>
           <p className="tabular flex items-baseline gap-2 text-sm">
             <s className="text-xs text-ink-faint">
@@ -157,10 +157,11 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
           type="button"
           onClick={addAll}
           aria-describedby={error ? errorId : undefined}
-          className="mt-4 h-12 w-full rounded-pill border border-ink text-sm font-medium transition-colors hover:bg-ink hover:text-paper"
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 bg-ink text-sm font-medium text-paper transition-colors hover:bg-ink/85 active:scale-[0.99]"
           data-testid="add-look"
         >
-          Add the full look to bag
+          Add full look to bag
+          <ArrowRight className="size-4" strokeWidth={1.5} aria-hidden="true" />
         </button>
       </div>
     </section>
@@ -172,7 +173,7 @@ function Thumb({ product, variant }: Piece) {
     <ModelThumb
       src={modelImage(product, variant, product.genders[0]!).src}
       focus={thumbFocus[product.garment]}
-      className="size-14"
+      className="size-12"
     />
   );
 }
