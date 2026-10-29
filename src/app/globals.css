@@ -149,3 +149,16 @@
 @keyframes progress { from { transform: scaleX(0) } to { transform: scaleX(1) } }
 @keyframes accordion-down { from { height: 0 } to { height: var(--radix-accordion-content-height) } }
 @keyframes accordion-up { from { height: var(--radix-accordion-content-height) } to { height: 0 } }
+
+/* Soft floor shadow under a cut-out model photo (the photos themselves have none). */
+.contact-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.2%;
+  width: 92%;
+  height: 4.5%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(20 22 30 / 0.3), rgb(20 22 30 / 0.12) 55%, transparent);
+  pointer-events: none;
+}

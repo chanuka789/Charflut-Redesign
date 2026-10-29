@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Product } from "@/lib/schema";
-import { ModelFigure } from "@/components/figure/ModelFigure";
+import Image from "next/image";
+import { modelImage } from "@/lib/model-image";
 import { PriceTag } from "./PriceTag";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -8,13 +9,16 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div className="studio-floor relative aspect-[4/5] overflow-hidden rounded-md">
-        <ModelFigure
-          garment={product.garment}
-          color={first.hex}
-          gender="men"
-          personaIndex={1}
-          className="absolute inset-x-0 bottom-[3%] mx-auto h-[90%] transition-transform duration-700 ease-[var(--ease-out-quint)] group-hover:scale-[1.03]"
-        />
+        <div className="absolute inset-x-0 bottom-[3%] mx-auto aspect-[2/5] h-[92%] origin-bottom transition-transform duration-700 ease-[var(--ease-out-quint)] group-hover:scale-[1.03]">
+          <span className="contact-shadow" aria-hidden="true" />
+          <Image
+            src={modelImage(product, first, product.genders[0]!).src}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 15vw, 30vw"
+            className="object-contain object-bottom"
+          />
+        </div>
       </div>
       <div className="mt-3 flex items-start justify-between gap-4">
         <div className="min-w-0">

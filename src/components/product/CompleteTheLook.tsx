@@ -7,7 +7,8 @@ import type { Product, Variant } from "@/lib/schema";
 import { bundleTotals, formatPrice } from "@/lib/price";
 import { inStock, toLine, variantPrice } from "@/lib/product-utils";
 import { useCart } from "@/store/cart";
-import { ModelFigure } from "@/components/figure/ModelFigure";
+import { modelImage, thumbFocus } from "@/lib/model-image";
+import { ModelThumb } from "./ModelThumb";
 
 interface CompleteTheLookProps {
   product: Product;
@@ -168,15 +169,10 @@ export function CompleteTheLook({ product, variant, size, pairings, discount, on
 
 function Thumb({ product, variant }: Piece) {
   return (
-    <div className="grid size-14 shrink-0 place-items-center rounded-sm bg-paper-sunk/70">
-      <ModelFigure
-        garment={product.garment}
-        color={variant.hex}
-        gender="men"
-        personaIndex={0}
-        mode="garment"
-        className="size-11"
-      />
-    </div>
+    <ModelThumb
+      src={modelImage(product, variant, product.genders[0]!).src}
+      focus={thumbFocus[product.garment]}
+      className="size-14"
+    />
   );
 }

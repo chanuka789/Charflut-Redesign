@@ -11,8 +11,9 @@ export interface CartLine {
   size: string;
   name: string;
   colorName: string;
-  hex: string;
-  garment: "hoodie" | "tee" | "cargo";
+  image: string;
+  /** CSS object-position that keeps the product in view in a square thumbnail. */
+  focus: string;
   /** Price per item after any bundle discount. */
   unitPrice: number;
   /** Price per item before the bundle discount, shown struck through. */
@@ -72,7 +73,9 @@ export const useCart = create<CartState>()(
     }),
     {
       name: "charflut-cart",
-      version: 1,
+      // v2: lines carry a photo instead of a drawn figure; older lines are dropped.
+      version: 2,
+      migrate: () => ({ lines: [] }),
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ lines: s.lines }),
     },

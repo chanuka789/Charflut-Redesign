@@ -26,17 +26,16 @@ export const variantSchema = z.object({
   compareAtPrice: z.number().positive().optional(),
   sizes: z.array(size).min(1),
   /**
-   * Cut-out photos of a model wearing this colour, one per gender.
-   * Drop files in public/models/<product>/<variant>-<gender>.webp.
-   * When a slot is empty the page draws an illustrated placeholder model,
-   * so a future try-on pipeline only has to fill these slots.
+   * Optional override for the model photo of this colour, per gender.
+   * By default the page uses public/models/<product>/<variant>-<gender>.webp
+   * (see scripts/process-models.py), so most products leave this empty.
    */
   images: z.object({ men: image.optional(), women: image.optional() }).default({}),
 });
 
 export const hotspotSchema = z.object({
   id: z.string(),
-  /** Position on the model as a percentage of its box. */
+  /** Position on the model photo as a percentage of its box. Photos differ, so set these per product. */
   x: z.number().min(0).max(100),
   y: z.number().min(0).max(100),
   title: z.string(),

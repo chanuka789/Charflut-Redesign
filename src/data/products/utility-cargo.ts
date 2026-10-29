@@ -26,9 +26,5 @@ export const utilityCargo: z.input<typeof productSchema> = {
     { id: "slate", name: "Slate", hex: "#596168", sizes: sizes([0, 4, 6, 5, 0, 0]) },
     { id: "sand", name: "Sand", hex: "#ccbe9e", sizes: sizes([3, 5, 7, 4, 2, 1]) },
   ],
-  hotspots: [
-    { id: "pocket", x: 30, y: 68, title: "Bellows pocket", body: "Expands when you need it and lies flat when you don't." },
-    { id: "hem", x: 66, y: 93, title: "Drawcord hem", body: "Pull it in to stack over high-tops, or leave it loose." },
-  ],
   completeTheLook: { slugs: ["loop-hoodie", "heavy-tee"], discount: 0.1 },
 };

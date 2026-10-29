@@ -85,10 +85,11 @@ test.describe("product page", () => {
     await expect(page.getByTestId("cart-subtotal")).toHaveText("$295.20");
   });
 
-  test("hotspots show garment details", async ({ page }) => {
+  test("model photos load for the visible colours", async ({ page }) => {
     await page.goto(PDP);
-    await page.getByRole("button", { name: "Detail: Kangaroo pocket" }).click();
-    await expect(page.getByText("Bonded inner seams")).toBeVisible();
+    const img = page.getByRole("img", { name: /Loop Hoodie in Concrete/ });
+    await expect(img).toBeVisible();
+    expect(await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBe(600);
   });
 
   test("no horizontal scroll and no serious accessibility issues", async ({ page }) => {

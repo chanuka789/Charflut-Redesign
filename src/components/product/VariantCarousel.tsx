@@ -9,7 +9,7 @@ import { useGSAP } from "@gsap/react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import type { ModelGender, Product } from "@/lib/schema";
 import { nearestIndex, shortestDelta, slideDepth, slideDistance, wrapIndex } from "@/lib/carousel-math";
-import { ModelFigure } from "@/components/figure/ModelFigure";
+import { modelImage } from "@/lib/model-image";
 import { cn } from "@/lib/cn";
 import { Hotspot } from "./Hotspot";
 
@@ -289,8 +289,10 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         data-testid="carousel-stage"
       >
         {variants.map((v, i) => {
-          const img = v.images[gender];
+          const img = modelImage(product, v, gender);
           const isActive = i === active;
+          // The centre model and its direct neighbours load first; the rest when idle.
+          const near = Math.abs(slideDistance(i, initialPos, n, loop)) <= 1;
           return (
             <div
               key={v.id}
@@ -305,27 +307,17 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
               className="carousel-slide absolute bottom-[4%] left-1/2 aspect-[2/5] h-[88%] origin-bottom will-change-transform"
               style={initialSlideStyle(slideDistance(i, initialPos, n, loop))}
             >
-              <div className="absolute inset-0">
-                {img ? (
-                  <Image
-                    src={img.src}
-                    alt={isActive ? img.alt : ""}
-                    fill
-                    sizes="(min-width: 1024px) 18vw, (min-width: 640px) 26vw, 60vw"
-                    className="object-contain object-bottom"
-                    priority={isActive}
-                    draggable={false}
-                  />
-                ) : (
-                  <ModelFigure
-                    garment={product.garment}
-                    color={v.hex}
-                    gender={gender}
-                    personaIndex={i}
-                    className="h-full w-full"
-                  />
-                )}
-              </div>
+              <span className="contact-shadow" aria-hidden="true" />
+              <Image
+                src={img.src}
+                alt={isActive ? img.alt : ""}
+                fill
+                sizes="(min-width: 1024px) 18vw, (min-width: 640px) 26vw, 60vw"
+                className="object-contain object-bottom"
+                priority={i === initialPos}
+                loading={i === initialPos ? undefined : near ? "eager" : "lazy"}
+                draggable={false}
+              />
               {isActive && settled && product.hotspots.length > 0 && (
                 <div className="absolute inset-0">
                   {product.hotspots.map((h) => (

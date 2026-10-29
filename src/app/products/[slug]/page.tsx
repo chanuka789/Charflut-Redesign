@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProduct, products } from "@/data/catalog";
-import { modelGenders, type ModelGender, type Product } from "@/lib/schema";
+import type { Product } from "@/lib/schema";
 import { inStock, variantPrice } from "@/lib/product-utils";
-import { ProductView } from "@/components/product/ProductView";
+import { ProductViewFromUrl } from "@/components/product/ProductViewFromUrl";
 import { ProductCard } from "@/components/product/ProductCard";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ color?: string | string[]; model?: string | string[] }>;
 }
 
-const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+// Every product page is built once at deploy time and served as a static file,
+// so the server does no rendering per visit. ?color= and ?model= are read in
+// the browser (see ProductView).
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return products.map((p) => ({ slug: p.slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const product = getProduct((await params).slug);
@@ -49,18 +55,10 @@ function jsonLd(product: Product) {
   };
 }
 
-export default async function ProductPage({ params, searchParams }: PageProps) {
-  const [{ slug }, query] = await Promise.all([params, searchParams]);
+export default async function ProductPage({ params }: PageProps) {
+  const { slug } = await params;
   const product = getProduct(slug);
   if (!product) notFound();
-
-  const color = first(query.color);
-  const model = first(query.model);
-  const variantIndex = Math.max(0, product.variants.findIndex((v) => v.id === color));
-  const gender: ModelGender =
-    modelGenders.includes(model as ModelGender) && product.genders.includes(model as ModelGender)
-      ? (model as ModelGender)
-      : product.genders[0]!;
 
   const pairings = (product.completeTheLook?.slugs ?? [])
     .map((s) => getProduct(s))
@@ -74,12 +72,10 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
         // Product data is our own static content; escape "<" so it can't close the tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(product)).replace(/</g, "\\u003c") }}
       />
-      <ProductView
+      <ProductViewFromUrl
         key={product.slug}
         product={product}
         pairings={pairings}
-        initialVariant={variantIndex}
-        initialGender={gender}
       />
 
       <section aria-labelledby="more-heading" className="mx-auto mt-24 max-w-[1600px] px-4 sm:px-6 lg:px-10">

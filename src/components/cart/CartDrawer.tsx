@@ -6,7 +6,7 @@ import { useCart, cartTotals, MAX_QTY, type CartLine } from "@/store/cart";
 import { useMounted } from "@/lib/use-mounted";
 import { formatPrice } from "@/lib/price";
 import { Sheet } from "@/components/ui/Sheet";
-import { ModelFigure } from "@/components/figure/ModelFigure";
+import { ModelThumb } from "@/components/product/ModelThumb";
 
 const FREE_DELIVERY = 150;
 
@@ -81,9 +81,7 @@ function CartLineRow({ line }: { line: CartLine }) {
   const remove = useCart((s) => s.remove);
   return (
     <li className="flex gap-4 py-5">
-      <div className="grid size-20 shrink-0 place-items-center rounded-sm bg-paper-sunk/70">
-        <ModelFigure garment={line.garment} color={line.hex} gender="men" personaIndex={0} mode="garment" className="size-16" />
-      </div>
+      <ModelThumb src={line.image} focus={line.focus} className="size-20" />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex justify-between gap-3">
           <Link href={`/products/${line.slug}?color=${line.variantId}`} className="truncate text-sm hover:underline">

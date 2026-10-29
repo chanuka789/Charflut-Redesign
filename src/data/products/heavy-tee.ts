@@ -27,9 +27,5 @@ export const heavyTee: z.input<typeof productSchema> = {
     { id: "sky", name: "Sky", hex: "#9fb5c8", sizes: sizes([5, 7, 9, 4, 0, 0]) },
     { id: "brick", name: "Brick", hex: "#94442f", sizes: sizes([3, 6, 7, 5, 4, 2]) },
   ],
-  hotspots: [
-    { id: "collar", x: 50, y: 18.5, title: "Flat collar", body: "A narrow 1 cm rib that won't bacon after washing." },
-    { id: "sleeve", x: 22, y: 25, title: "Mid-arm sleeve", body: "Cut to land halfway down the upper arm." },
-  ],
   completeTheLook: { slugs: ["loop-hoodie", "utility-cargo"], discount: 0.1 },
 };

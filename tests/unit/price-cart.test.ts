@@ -45,3 +45,18 @@ describe("catalog", () => {
     }
   });
 });
+
+describe("model photos", () => {
+  it("exist for every product, colour and model", async () => {
+    const { existsSync } = await import("node:fs");
+    const { modelImage } = await import("@/lib/model-image");
+    const missing: string[] = [];
+    for (const p of products)
+      for (const v of p.variants)
+        for (const g of p.genders) {
+          const src = modelImage(p, v, g).src;
+          if (!existsSync(`public${src}`)) missing.push(src);
+        }
+    expect(missing).toEqual([]);
+  });
+});

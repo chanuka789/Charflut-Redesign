@@ -22,9 +22,10 @@ BASE_URL=https://your-app.up.railway.app npm run e2e   # same suite against a li
 
 1. Add a file in `src/data/products/` (copy `loop-hoodie.ts`) and list it in `src/data/catalog.ts`.
 2. Data is validated with Zod (`src/lib/schema.ts`), so a mistake fails the build.
-3. Model photos: put cut-out images (transparent background, 2:5 portrait, feet at the bottom) at
-   `public/models/<product>/<variant>-<gender>.webp` and add them to the variant's `images.men` / `images.women`.
-   Until then the page draws an illustrated placeholder model in the variant's colour.
+3. Model photos: run `python3 scripts/process-models.py`. It reads the source photos in
+   `assets/models-src/<gender>.png` (transparent PNG, full body) and writes one 600×1500 WebP per colour and model
+   to `public/models/<product>/<variant>-<gender>.webp`, recolouring the garment the product sells.
+   To use a real product photo instead, put it at the same path, or set `images.men` / `images.women` on the variant.
 
 ## Stack
 

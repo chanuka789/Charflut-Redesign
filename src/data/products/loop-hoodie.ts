@@ -33,10 +33,5 @@ export const loopHoodie: z.input<typeof productSchema> = {
     { id: "bone", name: "Bone", hex: "#dcd5c6", sizes: sizes([6, 8, 10, 7, 3, 2]) },
     { id: "deep-navy", name: "Deep navy", hex: "#27324a", sizes: sizes([3, 6, 0, 4, 5, 2]) },
   ],
-  hotspots: [
-    { id: "hood", x: 38, y: 17.5, title: "Double-layer hood", body: "Two layers of loopback keep the hood standing up instead of collapsing flat." },
-    { id: "pocket", x: 50, y: 41, title: "Kangaroo pocket", body: "Bonded inner seams, so nothing frays or shows through." },
-    { id: "rib", x: 72, y: 49.5, title: "Rib hem and cuffs", body: "Elastane-blend rib that keeps its grip after hundreds of washes." },
-  ],
   completeTheLook: { slugs: ["heavy-tee", "utility-cargo"], discount: 0.1 },
 };
