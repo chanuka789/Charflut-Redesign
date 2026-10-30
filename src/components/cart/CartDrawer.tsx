@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart, cartTotals, MAX_QTY, type CartLine } from "@/store/cart";
 import { useMounted } from "@/lib/use-mounted";
-import { formatPrice } from "@/lib/price";
+import { applyDiscount, formatPrice, roundMoney } from "@/lib/price";
+import { rewardCode, useReward } from "@/store/reward";
 import { Sheet } from "@/components/ui/Sheet";
 import { ModelThumb } from "@/components/product/ModelThumb";
 
@@ -15,7 +16,11 @@ export function CartDrawer() {
   const open = useCart((s) => s.open);
   const setOpen = useCart((s) => s.setOpen);
   const lines = useCart((s) => s.lines);
-  const { count, subtotal, savings } = cartTotals(mounted ? lines : []);
+  const { count, subtotal: itemsTotal, savings } = cartTotals(mounted ? lines : []);
+  // The shooting game's prize comes off everything in the bag.
+  const reward = useReward((s) => s.discount);
+  const rewardOff = mounted && reward > 0 ? roundMoney(itemsTotal - applyDiscount(itemsTotal, reward)) : 0;
+  const subtotal = roundMoney(itemsTotal - rewardOff);
   const toFree = Math.max(0, FREE_DELIVERY - subtotal);
 
   return (
@@ -33,6 +38,12 @@ export function CartDrawer() {
                 <span>−{formatPrice(savings)}</span>
               </p>
             )}
+            {rewardOff > 0 && (
+              <p className="tabular flex justify-between text-sm text-signal">
+                <span>Game reward ({rewardCode(reward)})</span>
+                <span>−{formatPrice(rewardOff)}</span>
+              </p>
+            )}
             <p className="tabular flex justify-between text-base font-medium">
               <span>Subtotal</span>
               <span data-testid="cart-subtotal">{formatPrice(subtotal)}</span>
@@ -45,7 +56,7 @@ export function CartDrawer() {
               type="button"
               disabled
               title="This is a demo store"
-              className="h-13 w-full rounded-pill bg-ink text-sm font-medium text-paper disabled:opacity-60"
+              className="h-13 w-full bg-ink text-sm font-medium text-paper disabled:opacity-60"
             >
               Checkout (demo store)
             </button>
@@ -58,7 +69,7 @@ export function CartDrawer() {
           <ShoppingBag className="size-8 text-ink-faint" strokeWidth={1.25} aria-hidden="true" />
           <p className="text-sm text-ink-soft">Your bag is empty. Pick a colour and size to add something.</p>
           <Link
-            href="/"
+            href="/collections/all"
             onClick={() => setOpen(false)}
             className="rounded-pill border border-ink px-5 py-3 text-sm transition-colors hover:bg-ink hover:text-paper"
           >

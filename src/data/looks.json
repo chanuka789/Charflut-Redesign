@@ -1,0 +1,62 @@
+[
+  {
+    "id": "city-edit",
+    "name": "The City Edit",
+    "gender": "men",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "washed-black" },
+      { "slug": "heavy-tee", "variant": "chalk" },
+      { "slug": "utility-cargo", "variant": "stone" }
+    ]
+  },
+  {
+    "id": "gallery-opening",
+    "name": "Gallery Opening",
+    "gender": "women",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "bone" },
+      { "slug": "heavy-tee", "variant": "black" },
+      { "slug": "utility-cargo", "variant": "black" }
+    ]
+  },
+  {
+    "id": "studio-hours",
+    "name": "Studio Hours",
+    "gender": "men",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "rust" },
+      { "slug": "heavy-tee", "variant": "chalk" },
+      { "slug": "utility-cargo", "variant": "khaki" }
+    ]
+  },
+  {
+    "id": "weekend-run",
+    "name": "Weekend Run",
+    "gender": "women",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "concrete" },
+      { "slug": "heavy-tee", "variant": "heather" },
+      { "slug": "utility-cargo", "variant": "slate" }
+    ]
+  },
+  {
+    "id": "late-train",
+    "name": "Late Train",
+    "gender": "men",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "deep-navy" },
+      { "slug": "heavy-tee", "variant": "sky" },
+      { "slug": "utility-cargo", "variant": "sand" }
+    ]
+  },
+  {
+    "id": "market-day",
+    "name": "Market Day",
+    "gender": "women",
+    "pieces": [
+      { "slug": "loop-hoodie", "variant": "moss" },
+      { "slug": "heavy-tee", "variant": "olive" },
+      { "slug": "utility-cargo", "variant": "stone" }
+    ]
+  }
+]

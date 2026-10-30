@@ -2,24 +2,26 @@
 
 /*
   Charflut design tokens.
-  Studio paper (cool, not cream), graphite ink, one cobalt signal colour
-  reserved for focus, low stock and savings, so it always means "look here".
+  Gallery white, near-black ink and soft greys, Helvetica for text and Inter
+  for display type. The cobalt signal colour is kept for focus, low stock and
+  savings, so it always means "look here".
 */
 @theme {
-  --color-paper: #eeeeeb;
-  --color-paper-raised: #f7f7f5;
-  --color-paper-sunk: #e4e4e0;
-  --color-ink: #1d1e20;
-  --color-ink-soft: #5b5d61;
-  --color-ink-faint: #65676b;
-  --color-line: #d5d5d0;
-  --color-line-strong: #b9b9b3;
+  --color-paper: #ffffff;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunk: #f5f5f5;
+  --color-ink: #111111;
+  --color-ink-soft: #66625c;
+  --color-ink-faint: #707072;
+  --color-line: #e5e5e5;
+  --color-line-strong: #cacacb;
   --color-signal: #2b3ce0;
   --color-signal-soft: #e3e6fb;
   --color-danger: #b3261e;
 
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
 
   /* 1.25 modular scale from 16px */
   --text-2xs: 0.75rem;
@@ -60,13 +62,13 @@
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 7rem;
   }
   body {
     background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "tnum" 0;
+    font-size: 0.875rem;
   }
   ::selection {
     background: var(--color-signal);
@@ -91,9 +93,17 @@
 
 @utility display-type {
   font-family: var(--font-display);
-  font-weight: 300;
-  font-variation-settings: "wdth" 80, "opsz" 96;
-  letter-spacing: -0.035em;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+/* Small spaced capitals: section kickers, counters, tags. */
+@utility eyebrow {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
 }
 
 @utility tabular {
@@ -103,8 +113,7 @@
 /* The studio floor behind the models: a soft pool of light. */
 @utility studio-floor {
   background:
-    radial-gradient(60% 46% at 50% 78%, #fbfbfa 0%, rgb(251 251 250 / 0) 70%),
-    radial-gradient(90% 70% at 50% 40%, #f4f4f2 0%, rgb(244 244 242 / 0) 75%),
+    radial-gradient(60% 30% at 50% 92%, #f3f3f3 0%, rgb(243 243 243 / 0) 70%),
     var(--color-paper);
 }
 
@@ -161,4 +170,36 @@
   border-radius: 50%;
   background: radial-gradient(closest-side, rgb(20 22 30 / 0.3), rgb(20 22 30 / 0.12) 55%, transparent);
   pointer-events: none;
+}
+
+/* A garment on a hanger: a slow pendulum from the hook. */
+@keyframes sway {
+  0%, 100% { transform: rotate(var(--sway, 1.2deg)) }
+  50% { transform: rotate(calc(var(--sway, 1.2deg) * -1)) }
+}
+/* A swing that settles, played when a hanger is touched. */
+@keyframes nudge {
+  0% { transform: rotate(0) }
+  20% { transform: rotate(5deg) }
+  45% { transform: rotate(-3.5deg) }
+  70% { transform: rotate(1.6deg) }
+  100% { transform: rotate(0) }
+}
+@keyframes hero-gradient {
+  0%, 100% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+}
+@keyframes orbit-float {
+  0%, 100% { translate: 0 0 }
+  50% { translate: 0 -10px }
+}
+@keyframes ken-burns {
+  from { transform: scale(1.04) }
+  to { transform: scale(1.12) }
+}
+
+/* Hides a scrollbar but keeps the element scrollable. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }

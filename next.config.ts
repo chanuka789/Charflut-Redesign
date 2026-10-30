@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       {
         // Browsers and Railway's edge keep model photos for a week instead of
         // asking the server again on every visit.
-        source: "/models/:path*",
+        source: "/:dir(models|looks|garments)/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
       },
     ];

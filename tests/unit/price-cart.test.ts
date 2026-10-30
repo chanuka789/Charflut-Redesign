@@ -6,7 +6,7 @@ import { toLine } from "@/lib/product-utils";
 
 describe("price", () => {
   it("formats whole and fractional prices", () => {
-    expect(formatPrice(128)).toBe("$128");
+    expect(formatPrice(128)).toBe("$128.00");
     expect(formatPrice(492.3)).toBe("$492.30");
   });
   it("applies a bundle discount without float drift", () => {

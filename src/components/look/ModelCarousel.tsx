@@ -7,11 +7,9 @@ import { Draggable } from "gsap/Draggable";
 import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { useGSAP } from "@gsap/react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
-import type { ModelGender, Product } from "@/lib/schema";
 import { nearestIndex, shortestDelta, slideDepth, slideDistance, wrapIndex } from "@/lib/carousel-math";
-import { modelImage } from "@/lib/model-image";
+import type { ModelImage } from "@/lib/model-image";
 import { cn } from "@/lib/cn";
-import { Hotspot } from "./Hotspot";
 
 gsap.registerPlugin(useGSAP, Draggable, InertiaPlugin);
 
@@ -47,17 +45,27 @@ function initialSlideStyle(d: number): React.CSSProperties {
   };
 }
 
-interface VariantCarouselProps {
-  product: Product;
-  gender: ModelGender;
+export interface ModelSlide {
+  id: string;
+  name: string;
+  image: ModelImage;
+}
+
+interface ModelCarouselProps {
+  slides: ModelSlide[];
+  /** Names the set for screen readers, e.g. "Looks". */
+  label: string;
+  /** One slide, in words: "look", "colour". */
+  noun: string;
+  /** Drawn over the centre slide once it has stopped moving (pins, labels). */
+  overlay?: (index: number) => React.ReactNode;
   active: number;
   onActiveChange: (index: number) => void;
   reducedMotion: boolean;
 }
 
-export function VariantCarousel({ product, gender, active, onActiveChange, reducedMotion }: VariantCarouselProps) {
-  const { variants } = product;
-  const n = variants.length;
+export function ModelCarousel({ slides, label, noun, overlay, active, onActiveChange, reducedMotion }: ModelCarouselProps) {
+  const n = slides.length;
   const loop = n > 2;
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -247,7 +255,7 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
     const here = nearestIndex(pos.current.value, n, loop);
     if (active === here && !dragging.current) return;
     if (dragging.current) return;
-    // A colour that arrives while the page is starting up (a ?color= link)
+    // A slide chosen while the page is starting up (a deep link)
     // jumps into place instead of sliding across the row.
     if (performance.now() - startedAt.current < 600) {
       reported.current = active;
@@ -261,11 +269,6 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
     reported.current = active;
     travelTo(active);
   }, [active, n, loop, travelTo, render]);
-
-  // Re-render when the model set changes (men / women), the motion stays put.
-  useEffect(() => {
-    render();
-  }, [gender, render]);
 
   // Autoplay: one step every 5s. Stops for good once someone takes over.
   useEffect(() => {
@@ -296,13 +299,13 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
     e.preventDefault();
   };
 
-  const current = variants[active]!;
+  const current = slides[active]!;
   const autoplayRunning = playing && !hovering && !reducedMotion;
 
   return (
     <section
       aria-roledescription="carousel"
-      aria-label={`${product.name} colours`}
+      aria-label={label}
       className="relative flex h-full flex-col"
       onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
       onPointerLeave={() => setHovering(false)}
@@ -313,12 +316,12 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
         ref={stageRef}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        aria-label={`Showing ${current.name}. Use the left and right arrow keys to change colour.`}
+        aria-label={`Showing ${current.name}. Use the left and right arrow keys to change ${noun}.`}
         className="carousel-stage studio-floor relative h-[clamp(25rem,60svh,46rem)] w-full cursor-grab touch-pan-y overflow-hidden select-none active:cursor-grabbing focus-visible:outline-offset-[-2px] md:h-[clamp(28rem,56svh,44rem)]"
         data-testid="carousel-stage"
       >
-        {variants.map((v, i) => {
-          const img = modelImage(product, v, gender);
+        {slides.map((v, i) => {
+          const img = v.image;
           const isActive = i === active;
           return (
             <div
@@ -351,36 +354,36 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
                   draggable={false}
                 />
               )}
-              {isActive && settled && product.hotspots.length > 0 && (
-                <div className="absolute inset-0">
-                  {product.hotspots.map((h) => (
-                    <Hotspot key={h.id} hotspot={h} />
-                  ))}
-                </div>
-              )}
+              {isActive && settled && overlay && <div className="absolute inset-0">{overlay(i)}</div>}
             </div>
           );
         })}
 
         <p className="pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 rounded-pill bg-paper-raised/80 px-3 py-1.5 text-2xs text-ink-soft backdrop-blur md:hidden">
-          Swipe to change colour
+          Swipe to change {noun}
         </p>
       </div>
 
-      <div className="flex items-center gap-3 px-4 pt-5 pb-1 sm:gap-4 sm:px-6 lg:px-10">
+      <div className="flex items-center gap-3 px-4 pt-5 pb-1 sm:gap-6 sm:px-6 lg:px-12">
         <button
           type="button"
           onClick={() => step(-1)}
           disabled={!loop && active === 0}
-          className="grid size-11 shrink-0 place-items-center rounded-pill border border-line-strong transition-colors hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
-          aria-label="Previous colour"
+          className="grid size-11 shrink-0 place-items-center transition-transform hover:scale-110 disabled:opacity-40"
+          aria-label={`Previous ${noun}`}
         >
-          <ArrowLeft className="size-4" strokeWidth={1.5} />
+          <ArrowLeft className="size-7" strokeWidth={1.1} />
         </button>
 
-        <ol className="flex min-w-0 flex-1 items-end gap-2 sm:gap-3" aria-label="Colours">
-          {variants.map((v, i) => (
-            <li key={v.id} className="min-w-0 flex-1">
+        <ol className="flex min-w-0 flex-1 items-start gap-1.5 sm:max-w-[30rem]" aria-label={label}>
+          {slides.map((v, i) => (
+            <li
+              key={v.id}
+              className={cn(
+                "min-w-0 transition-[flex-grow] duration-500 [transition-timing-function:var(--ease-out-quint)]",
+                i === active ? "flex-[4.2]" : "flex-1",
+              )}
+            >
               <button
                 type="button"
                 onClick={() => {
@@ -394,34 +397,31 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
                 aria-label={`${String(i + 1).padStart(2, "0")} ${v.name}${i === active ? ", current" : ""}`}
                 aria-current={i === active ? "true" : undefined}
               >
-                <span
-                  className={cn(
-                    "tabular mb-1.5 block text-[0.6875rem] tracking-wide transition-colors",
-                    i === active ? "text-ink" : "text-ink-faint group-hover:text-ink-soft",
-                  )}
-                  aria-hidden="true"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="relative block h-[2px] overflow-hidden rounded-pill bg-line">
+                <span className="relative block h-[2px] overflow-hidden bg-line">
                   <span
                     key={`${active}-${autoplayRunning}`}
                     className={cn(
-                      "absolute inset-y-0 left-0 w-full origin-left rounded-pill bg-ink",
+                      "absolute inset-y-0 left-0 w-full origin-left bg-ink",
                       i < active && "scale-x-100",
                       i > active && "scale-x-0",
                       i === active && (autoplayRunning ? "animate-[progress_5s_linear_forwards]" : "scale-x-100"),
                     )}
                   />
                 </span>
+                <span
+                  className={cn(
+                    "tabular mt-2.5 block truncate text-[11px] tracking-[0.08em] transition-colors",
+                    i === active ? "text-ink" : "text-ink-soft group-hover:text-ink max-sm:invisible",
+                  )}
+                  aria-hidden="true"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                  {i === active && <span className="ml-1">{` ${v.name}`}</span>}
+                </span>
               </button>
             </li>
           ))}
         </ol>
-
-        <span className="hidden max-w-32 truncate text-xs text-ink-soft sm:block md:max-w-44" aria-hidden="true">
-          {current.name}
-        </span>
 
         <span className="tabular shrink-0 text-xs text-ink-soft sm:hidden" aria-hidden="true">
           {active + 1}/{n}
@@ -431,11 +431,11 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
           <button
             type="button"
             onClick={() => setPlaying((p) => !p)}
-            className="grid size-11 shrink-0 place-items-center rounded-pill text-ink-soft transition-colors hover:bg-paper-sunk hover:text-ink"
-            aria-label={playing ? "Pause colour slideshow" : "Play colour slideshow"}
+            className="ml-auto grid size-11 shrink-0 place-items-center rounded-pill text-ink transition-colors hover:bg-paper-sunk"
+            aria-label={playing ? `Pause ${noun} slideshow` : `Play ${noun} slideshow`}
             aria-pressed={!playing}
           >
-            {playing ? <Pause className="size-4" strokeWidth={1.5} /> : <Play className="size-4" strokeWidth={1.5} />}
+            {playing ? <Pause className="size-3.5 fill-ink" strokeWidth={1.5} /> : <Play className="size-3.5 fill-ink" strokeWidth={1.5} />}
           </button>
         )}
 
@@ -443,10 +443,10 @@ export function VariantCarousel({ product, gender, active, onActiveChange, reduc
           type="button"
           onClick={() => step(1)}
           disabled={!loop && active === n - 1}
-          className="grid size-11 shrink-0 place-items-center rounded-pill border border-line-strong transition-colors hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
-          aria-label="Next colour"
+          className="grid size-11 shrink-0 place-items-center transition-transform hover:scale-110 disabled:opacity-40"
+          aria-label={`Next ${noun}`}
         >
-          <ArrowRight className="size-4" strokeWidth={1.5} />
+          <ArrowRight className="size-7" strokeWidth={1.1} />
         </button>
       </div>
     </section>
