@@ -11,10 +11,12 @@ interface SizeSelectorProps {
   onChange: (size: string) => void;
   invalid?: boolean;
   describedBy?: string;
+  /** "grid": four wide boxes per row, as on the product page. */
+  layout?: "row" | "grid";
 }
 
 export const SizeSelector = forwardRef<HTMLDivElement, SizeSelectorProps>(function SizeSelector(
-  { variant, value, onChange, invalid, describedBy },
+  { variant, value, onChange, invalid, describedBy, layout = "row" },
   ref,
 ) {
   return (
@@ -27,7 +29,7 @@ export const SizeSelector = forwardRef<HTMLDivElement, SizeSelectorProps>(functi
       aria-describedby={describedBy}
       orientation="horizontal"
       loop
-      className="grid grid-cols-6 gap-1.5"
+      className={cn("grid", layout === "grid" ? "grid-cols-4 gap-2.5" : "grid-cols-6 gap-1.5")}
       data-testid="size-selector"
     >
       {variant.sizes.map((s) => {
@@ -39,8 +41,9 @@ export const SizeSelector = forwardRef<HTMLDivElement, SizeSelectorProps>(functi
             disabled={soldOut}
             aria-label={soldOut ? `${s.label}, sold out` : s.label}
             className={cn(
-              "tabular relative h-11 rounded-sm border text-sm transition-colors",
-              "border-line-strong bg-paper-raised hover:border-ink",
+              "tabular relative rounded-[2px] border text-sm transition-colors",
+              layout === "grid" ? "h-[46px] border-[#ddd]" : "h-11 border-line-strong",
+              "bg-paper-raised hover:border-ink",
               "data-[state=checked]:border-ink data-[state=checked]:bg-ink data-[state=checked]:text-paper",
               "disabled:border-line disabled:bg-transparent disabled:text-ink-faint disabled:line-through disabled:hover:border-line",
               invalid && "border-danger/70",

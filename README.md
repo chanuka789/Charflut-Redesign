@@ -1,6 +1,13 @@
 # Charflut
 
-Product page template for a streetwear store. Models stand in a row, each wearing the same product in a different colour. Drag, swipe, use the arrows, or pick a colour, and the buy panel follows.
+Streetwear store front. Pages:
+
+- `/` home: a curved hanging rail (drag it, click a piece for a closer look), a wall rail, "Try the Look" with
+  six styled outfits, the Orbit wheel, an editorial slider and a gallery of looks.
+- `/orbit`, `/hand-rail`, `/runway`: each of those sections on its own page.
+- `/collections/all`: every colour of every product, with filters, sort and two grid sizes.
+- `/products/<slug>`: photos on the left, colour, size and add to cart on the right.
+- A "Shoot 3" basketball game opens once on a first visit; the discount it wins comes off the bag.
 
 ## Run it
 
@@ -26,6 +33,9 @@ BASE_URL=https://your-app.up.railway.app npm run e2e   # same suite against a li
    `assets/models-src/<gender>.png` (transparent PNG, full body) and writes one 600×1500 WebP per colour and model
    to `public/models/<product>/<variant>-<gender>.webp`, recolouring the garment the product sells.
    To use a real product photo instead, put it at the same path, or set `images.men` / `images.women` on the variant.
+4. Garment photos (the rails, cards and product gallery) and look photos: run `python3 scripts/process-garments.py`.
+   It cuts each colour out of the model photo to `public/garments/<product>/<variant>.webp`, and dresses the
+   models for each look in `src/data/looks.json` to `public/looks/<look>.webp`.
 
 ## Stack
 

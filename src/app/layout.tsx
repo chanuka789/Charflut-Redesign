@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { ShootGame } from "@/components/promo/ShootGame";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({
+const display = Inter({
   subsets: ["latin"],
-  axes: ["wdth", "opsz"],
-  variable: "--font-bricolage",
+  weight: ["500", "600", "800"],
+  variable: "--font-inter",
   display: "swap",
 });
 
-const sans = Hanken_Grotesk({
+const serif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-hanken",
+  weight: "400",
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -25,14 +27,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#eeeeeb",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html lang="en" className={`${display.variable} ${serif.variable}`}>
       <body className="min-h-dvh">
         <a
           href="#main"
@@ -44,6 +46,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <main id="main">{children}</main>
         <Footer />
         <CartDrawer />
+        <ShootGame />
       </body>
     </html>
   );

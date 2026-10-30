@@ -60,10 +60,10 @@ export default async function ProductPage({ params }: PageProps) {
   const product = getProduct(slug);
   if (!product) notFound();
 
-  const pairings = (product.completeTheLook?.slugs ?? [])
-    .map((s) => getProduct(s))
-    .filter((p): p is Product => Boolean(p));
-  const more = products.filter((p) => p.slug !== product.slug);
+  // Two colours from each of the other products.
+  const more = products
+    .filter((p) => p.slug !== product.slug)
+    .flatMap((p) => p.variants.slice(0, 2).map((v) => ({ product: p, variant: v })));
 
   return (
     <>
@@ -72,20 +72,16 @@ export default async function ProductPage({ params }: PageProps) {
         // Product data is our own static content; escape "<" so it can't close the tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(product)).replace(/</g, "\\u003c") }}
       />
-      <ProductView
-        key={product.slug}
-        product={product}
-        pairings={pairings}
-      />
+      <ProductView key={product.slug} product={product} />
 
-      <section aria-labelledby="more-heading" className="mx-auto mt-24 max-w-[1600px] px-4 sm:px-6 lg:px-10">
-        <h2 id="more-heading" className="display-type text-3xl sm:text-4xl">
+      <section aria-labelledby="more-heading" className="mx-auto mt-16 max-w-[1600px] px-4 pb-20 sm:px-6 lg:px-10">
+        <h2 id="more-heading" className="text-2xl font-bold tracking-[-0.01em]">
           You may also like
         </h2>
-        <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3">
-          {more.map((p) => (
-            <li key={p.slug}>
-              <ProductCard product={p} />
+        <ul className="mt-8 grid grid-cols-2 items-start gap-x-4 gap-y-10 sm:gap-x-4 md:grid-cols-4">
+          {more.map(({ product: p, variant: v }) => (
+            <li key={`${p.slug}-${v.id}`}>
+              <ProductCard product={p} variant={v} />
             </li>
           ))}
         </ul>

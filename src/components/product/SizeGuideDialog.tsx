@@ -28,12 +28,25 @@ const bottoms = {
   ],
 };
 
-export function SizeGuideDialog({ garment, fit }: { garment: Garment; fit: string }) {
+interface SizeGuideDialogProps {
+  garment: Garment;
+  fit: string;
+  /** Trigger content; a plain "Size guide" link by default. */
+  children?: React.ReactNode;
+  triggerClassName?: string;
+}
+
+export function SizeGuideDialog({ garment, fit, children, triggerClassName }: SizeGuideDialogProps) {
   const table = garment === "cargo" ? bottoms : tops;
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="text-xs text-ink-soft underline decoration-line-strong underline-offset-4 hover:text-ink hover:decoration-ink">
-        Size guide
+      <Dialog.Trigger
+        className={
+          triggerClassName ??
+          "text-xs text-ink-soft underline decoration-line-strong underline-offset-4 hover:text-ink hover:decoration-ink"
+        }
+      >
+        {children ?? "Size guide"}
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[90] bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_250ms_ease-out]" />
