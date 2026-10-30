@@ -1,4 +1,4 @@
-/** Pure maths for the variant carousel, kept free of DOM so it can be unit tested. */
+/** Pure maths for the model carousel and the Orbit wheel, kept free of DOM so it can be unit tested. */
 
 export function wrapIndex(i: number, n: number): number {
   return ((i % n) + n) % n;

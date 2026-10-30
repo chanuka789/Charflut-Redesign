@@ -117,7 +117,7 @@
     var(--color-paper);
 }
 
-/* Must match layoutFor() in VariantCarousel. */
+/* Must match layoutFor() in ModelCarousel. */
 .carousel-stage {
   container-type: inline-size;
 }
